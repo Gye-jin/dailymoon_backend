@@ -10,7 +10,6 @@ import java.net.URL;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
 import com.example.dailymoon.entity.Member;
@@ -27,11 +26,6 @@ public class MemberServiceImpl implements MemberService {
 	@Autowired
 	MemberRepository memberRepo;
 	
-//	@Autowired
-//	private AuthenticationManager authenticationManager;
-	
-//	@Value("${cos.key}")
-//	private String cosKey;
 
 	@Override
 	public String getKaKaoAccessToken(String code) {
