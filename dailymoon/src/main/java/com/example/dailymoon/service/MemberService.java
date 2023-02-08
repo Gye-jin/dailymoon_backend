@@ -1,10 +1,8 @@
 package com.example.dailymoon.service;
 
+import com.google.gson.JsonElement;
+
 public interface MemberService {
-	
-	public String getKaKaoAccessToken(String code);
-	
-//	public boolean getKakaoUser(String token);
-	
-	public String createKakaoUser(String token);
+
+	public String createUser(JsonElement element);
 }
