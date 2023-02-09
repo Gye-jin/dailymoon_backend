@@ -7,7 +7,7 @@ import com.example.dailymoon.entity.Member;
 @Repository
 public interface MemberRepository extends JpaRepository<Member,Long>{
 	
-	public Member findByUserId(Long Userid);
+	public Member findByUserId(Long userId);
 	
-	public boolean existsByUserId(Long Userid);
+	public boolean existsByUserId(Long userId);
 }
