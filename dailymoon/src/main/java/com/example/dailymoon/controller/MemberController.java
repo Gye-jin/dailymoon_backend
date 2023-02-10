@@ -1,47 +1,63 @@
 package com.example.dailymoon.controller;
 
+import java.lang.ProcessBuilder.Redirect;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dailymoon.api.AcessToken;
 import com.example.dailymoon.api.KakaoAPI;
+import com.example.dailymoon.config.JwtProperties;
+import com.example.dailymoon.entity.Member;
+import com.example.dailymoon.service.JWTServiceImpl;
 import com.example.dailymoon.service.MemberServiceImpl;
 import com.google.gson.JsonElement;
 
 @RestController
 @RequestMapping(value = "/api",produces = "application/json")
-@CrossOrigin(origins = {"*"})
 public class MemberController {
 	
 	
 	@Autowired 
 	MemberServiceImpl MemberService;
 	
+	@Autowired
+	JWTServiceImpl jwtservice;
 	
+	// 로그인 기능
 	@GetMapping("/kakao")
-//	public @ResponseBody String login(@RequestParam String accestoken)  {
-	public @ResponseBody String login(@RequestParam String code)  {
-		String accestoken = AcessToken.getKaKaoAccessToken(code);
-		JsonElement element = KakaoAPI.UserInfo(accestoken);
-		MemberService.createUser(element);
-		return "카카오 로그인 성공";
+	public ResponseEntity<String> kakao(@RequestParam String code)  {
+		String accesstoken = AcessToken.getKaKaoAccessToken(code);
+		System.out.println(accesstoken);
+		JsonElement element = KakaoAPI.UserInfo(accesstoken);
+		Member member = MemberService.createUser(element);
+		String jwttoken = jwtservice.createToken(member);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("key", "login");
+		headers.add(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwttoken);
+		
+		// JWT 가 담긴 헤더와 200 ok 스테이터스 값, "success" 라는 바디값을 ResponseEntity 에 담아 프론트 측에 전달한다
+		System.out.println("##### " + ResponseEntity.ok().headers(headers).body("success"));
+		return ResponseEntity.ok().headers(headers).body("success");
 	}
-	
-//	@RequestMapping(value="/logout")
-//	public ModelAndView logout(HttpSession session) {
-//		ModelAndView mav = new ModelAndView();
-//		
-//		kakaoApi.kakaoLogout((String)session.getAttribute("accessToken"));
-//		session.removeAttribute("accessToken");
-//		session.removeAttribute("userId");
-//		mav.setViewName("index");
-//		return mav;
-//	}
+		
+    // 로그 아웃 기능
+    @GetMapping("/kakaoLogout")
+    public ResponseEntity<String> getLogout(HttpServletRequest request) {
+    	
+    	
+    	ResponseEntity<String> response = MemberService.logout(request);
+    	
+		return ResponseEntity.ok().body("success");
+    }
 	
 	
 }

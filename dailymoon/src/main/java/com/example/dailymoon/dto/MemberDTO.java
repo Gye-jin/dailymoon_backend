@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class MemberDTO {
 	
 	private Long userId;
+	private String password;
 	private String nickname;
 	private String email;
 	private String gender;
@@ -22,6 +23,7 @@ public class MemberDTO {
 	public static Member userDTOToEntity(MemberDTO memberDTO) {
 		Member member = Member.builder()
 								.userId(memberDTO.getUserId())
+								.password(memberDTO.getPassword())
 								.nickname(memberDTO.getNickname())
 								.email(memberDTO.getEmail())
 								.gender(memberDTO.getGender())
