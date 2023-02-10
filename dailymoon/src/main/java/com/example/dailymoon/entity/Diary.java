@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -18,7 +17,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.dailymoon.dto.DiaryDTO;
 import com.example.dailymoon.emotion.Feeling;
@@ -44,6 +42,7 @@ public class Diary {
 	@Enumerated(EnumType.STRING)
 	private Feeling feeling;
 	
+	@CreatedDate
 	@Column(updatable = false)
 	private LocalDate date;
 	
@@ -51,7 +50,7 @@ public class Diary {
 	
 	// [Join]
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "diary")
 	private Member member;
 	
 	@JsonIgnore
@@ -64,13 +63,5 @@ public class Diary {
 				.feeling(diary.feeling).date(diary.date)
 				.detail(diary.detail).build();
 		return diaryDTO;
-	}
-	
-	// Insert
-	public void memberInDiary(Member member) {
-		this.member = member;
-	}
-	public void dateInDiary(LocalDate date) {
-		this.date = date;
 	}
 }

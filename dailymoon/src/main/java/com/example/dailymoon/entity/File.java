@@ -18,8 +18,8 @@ import javax.persistence.ManyToOne;
 import com.example.dailymoon.dto.FileDTO;
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Builder
 public class File {
@@ -38,7 +38,7 @@ public class File {
 
 	// [Join]
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "diary_no")
+	@JoinColumn(name = "file")
 	private Diary diary;
 
 	// [Entity to DTO]
@@ -46,10 +46,5 @@ public class File {
 		FileDTO fileDTO = FileDTO.builder().fileNo(file.fileNo).fileName(file.fileName)
 				.filePath(file.filePath).originalFileName(file.originalFileName).build();
 		return fileDTO;
-	}
-	
-	// Insert
-	public void insertDiaryInFile(Diary diary) {
-		this.diary = diary;
 	}
 }

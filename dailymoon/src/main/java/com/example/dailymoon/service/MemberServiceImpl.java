@@ -3,7 +3,6 @@ package com.example.dailymoon.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.dailymoon.dto.MemberDTO;
 import com.example.dailymoon.entity.Member;
 import com.example.dailymoon.repository.MemberRepository;
 import com.google.gson.JsonElement;
@@ -17,8 +16,6 @@ public class MemberServiceImpl implements MemberService {
 	@Autowired
 	MemberRepository memberRepo;
 
-	// Create
-	@Override
 	public String createUser(JsonElement element) {
 
 		Long id = element.getAsJsonObject().get("id").getAsLong();
@@ -37,5 +34,4 @@ public class MemberServiceImpl implements MemberService {
 		}
 		return null;
 	}
-	
 }
