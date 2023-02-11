@@ -13,7 +13,6 @@ import org.springframework.web.filter.CorsFilter;
 
 import com.example.dailymoon.config.jwt.CustomAuthenticationEntryPoint;
 import com.example.dailymoon.config.jwt.JwtRequestFilter;
-import com.example.dailymoon.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,8 +22,6 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	private final CorsFilter corsfilter;
-	
-	private final MemberRepository memberRepository;
 	
 	@Bean
 	public BCryptPasswordEncoder encodePwd() {

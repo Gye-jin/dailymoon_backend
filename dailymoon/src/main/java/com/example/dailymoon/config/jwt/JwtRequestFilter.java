@@ -36,12 +36,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String token = jwtHeader.replace(JwtProperties.TOKEN_PREFIX, "");
 
         Long userId = null;
+        String accessToken = null;
         String password = null;
 
         try {
             userId = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
                     .getClaim("id").asLong();
             System.out.println(userId);
+            accessToken = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
+            		.getClaim("access_token").asString();
             password = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
             		.getClaim("password").asString();
             System.out.println(password);
@@ -56,6 +59,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         request.setAttribute("userId", password);
+        request.setAttribute("access_token", accessToken);        
         request.setAttribute("password", password);
 
         filterChain.doFilter(request, response);

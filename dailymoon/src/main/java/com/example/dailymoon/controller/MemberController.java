@@ -1,6 +1,6 @@
 package com.example.dailymoon.controller;
 
-import java.lang.ProcessBuilder.Redirect;
+
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,7 +38,7 @@ public class MemberController {
 		System.out.println(accesstoken);
 		JsonElement element = KakaoAPI.UserInfo(accesstoken);
 		Member member = MemberService.createUser(element);
-		String jwttoken = jwtservice.createToken(member);
+		String jwttoken = jwtservice.createToken(member,accesstoken);
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("key", "login");
@@ -55,6 +55,7 @@ public class MemberController {
     	
     	
     	ResponseEntity<String> response = MemberService.logout(request);
+    	System.out.println(response+"logout완료");
     	
 		return ResponseEntity.ok().body("success");
     }
