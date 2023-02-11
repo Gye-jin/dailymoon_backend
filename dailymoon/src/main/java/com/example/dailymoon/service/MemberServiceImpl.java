@@ -10,16 +10,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.dailymoon.dto.MemberDTO;
 import com.example.dailymoon.entity.Member;
 import com.example.dailymoon.repository.MemberRepository;
 import com.google.gson.JsonElement;
@@ -36,8 +33,6 @@ public class MemberServiceImpl implements MemberService {
 	@Autowired
 	MemberRepository memberRepo;
 	
-	private AuthenticationManager authenticationManager;
-
 	public Member createUser(JsonElement element) {
 
 		Long id = element.getAsJsonObject().get("id").getAsLong();
@@ -97,5 +92,15 @@ public class MemberServiceImpl implements MemberService {
 		System.out.println("###### logout2 : " + kakaoLogoutResponse);
 		
 		return kakaoLogoutResponse;
+	}
+	
+	
+	
+	@Override
+	public MemberDTO getMember(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        Member member = memberRepo.findByUserId(userId);
+       MemberDTO memberDTO = Member.memberEntityToDTO(member);
+        return memberDTO;
 	}
 }

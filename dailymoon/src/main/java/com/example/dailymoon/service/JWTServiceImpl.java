@@ -16,12 +16,14 @@ import lombok.RequiredArgsConstructor;
 public class JWTServiceImpl implements JWTService {
 
 	@Override
-	public String createToken(Member member) {
+	public String createToken(Member member, String accesstoken) {
 		System.out.println("######## createToken User : " + member);
 
 		String jwtToken = JWT.create().withSubject(member.getNickname())
 				.withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-				.withClaim("id", member.getUserId()).withClaim("password", member.getPassword())
+				.withClaim("id", member.getUserId())
+				.withClaim("accessToken",accesstoken)
+				.withClaim("password", member.getPassword())
 				.sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
 		return jwtToken;
