@@ -49,6 +49,7 @@ public class FileServiceImpl implements FileService {
 		Diary diary = DiaryDTO.diaryDTOToEntity(diaryDTO);
 		
 		for(MultipartFile file : fileList) {
+			if(file.getSize()!=0) {
 			// 파일 이름
 			String fileName = diary.getDiaryNo()+"_"+file.getOriginalFilename();
 			// 파일 오리지널 이름
@@ -56,18 +57,19 @@ public class FileServiceImpl implements FileService {
 			
 			// 파일 크기
 			long size = file.getSize();
-			// 저장할 파일 속성 지정
-			ObjectMetadata objectMetaData = new ObjectMetadata();
-			objectMetaData.setContentType(file.getContentType());
-			objectMetaData.setContentLength(size);
-			
-			// S3에 업로드
-			amazonS3Client.putObject(
-					new PutObjectRequest(S3Bucket, fileName, file.getInputStream(), objectMetaData)
-					.withCannedAcl(CannedAccessControlList.PublicRead)
-					);
-			// 접근 가능한 URL가져오기
-			String filePath = amazonS3Client.getUrl(S3Bucket, fileName).toString();
+//			// 저장할 파일 속성 지정
+//			ObjectMetadata objectMetaData = new ObjectMetadata();
+//			objectMetaData.setContentType(file.getContentType());
+//			objectMetaData.setContentLength(size);
+//			
+//			// S3에 업로드
+//			amazonS3Client.putObject(
+//					new PutObjectRequest(S3Bucket, fileName, file.getInputStream(), objectMetaData)
+//					.withCannedAcl(CannedAccessControlList.PublicRead)
+//					);
+//			// 접근 가능한 URL가져오기
+//			String filePath = amazonS3Client.getUrl(S3Bucket, fileName).toString();
+			String filePath = "WWW.AAAAA.COM";
 			
 			// fileDTO 생성
 			FileDTO fileDTO = FileDTO.builder().fileName(fileName).filePath(filePath).originalFileName(originalFileName).build();
@@ -77,6 +79,7 @@ public class FileServiceImpl implements FileService {
 			fileEntity.insertDiaryInFile(diary);
 			// fileRepo save
 			fileRepo.save(fileEntity);
+			}
 		}
 	}
 	

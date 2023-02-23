@@ -22,7 +22,6 @@ public class JWTServiceImpl implements JWTService {
 		String jwtToken = JWT.create().withSubject(member.getNickname())
 				.withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
 				.withClaim("id", member.getUserId())
-				.withClaim("accessToken",accesstoken)
 				.withClaim("password", member.getPassword())
 				.sign(Algorithm.HMAC512(JwtProperties.SECRET));
 

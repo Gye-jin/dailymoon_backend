@@ -35,16 +35,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         // jwt 토큰을 검증해서 정상적인 사용자인지 확인
         String token = jwtHeader.replace(JwtProperties.TOKEN_PREFIX, "");
 
-        Long userId = null;
-        String accessToken = null;
+        Long id = null;
         String password = null;
 
         try {
-            userId = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
+            id = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
                     .getClaim("id").asLong();
-            System.out.println(userId);
-            accessToken = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
-            		.getClaim("access_token").asString();
+            System.out.println(id);
             password = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
             		.getClaim("password").asString();
             System.out.println(password);
@@ -57,9 +54,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             e.printStackTrace();
             request.setAttribute(JwtProperties.HEADER_STRING, "유효하지 않은 토큰입니다.");
         }
-
-        request.setAttribute("userId", password);
-        request.setAttribute("access_token", accessToken);        
+        request.setAttribute("id", id);
         request.setAttribute("password", password);
 
         filterChain.doFilter(request, response);
