@@ -36,23 +36,23 @@ public class MemberServiceImpl implements MemberService {
 	public Member createUser(JsonElement element) {
 
 		Long id = element.getAsJsonObject().get("id").getAsLong();
-		String nickname = element.getAsJsonObject().get("properties").getAsJsonObject().get("nickname").getAsString();
-		
-		UUID uuid = UUID.randomUUID();
-		String encPassword = new BCryptPasswordEncoder().encode(uuid.toString());
+	      String nickname = element.getAsJsonObject().get("properties").getAsJsonObject().get("nickname").getAsString();
+	      
+	      UUID uuid = UUID.randomUUID();
+	      String encPassword = new BCryptPasswordEncoder().encode(uuid.toString());
 
-		String birth = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("birthday").getAsString();
+	      String birth = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("birthday").getAsString();
 
-		String gender = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("gender").getAsString();
+	      String gender = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("gender").getAsString();
 
-		String email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
-		Member member = Member.builder().userId(id).password(encPassword).nickname(nickname).email(email).gender(gender).birth(birth)
-				.build();
-		if (!memberRepo.existsByUserId(id)) {
-			memberRepo.save(member);
-			
-		}
-		return member;
+	      String email = element.getAsJsonObject().get("kakao_account").getAsJsonObject().get("email").getAsString();
+	      Member member = Member.builder().userId(id).password(encPassword).nickname(nickname).email(email).gender(gender).birth(birth)
+	            .build();
+	      if (!memberRepo.existsByUserId(id)) {
+	         memberRepo.save(member);
+	         
+	      }
+	      return member;
 	}
 	
 	
