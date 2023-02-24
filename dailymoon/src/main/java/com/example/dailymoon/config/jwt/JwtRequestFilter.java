@@ -2,6 +2,7 @@ package com.example.dailymoon.config.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.dailymoon.config.JwtProperties;
@@ -23,40 +24,38 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwtHeader = ((HttpServletRequest)request).getHeader(JwtProperties.HEADER_STRING);
-        System.out.println("JwtRequestFilter 진입");
+  
+            String jwtHeader = ((HttpServletRequest)request).getHeader(JwtProperties.HEADER_STRING);
+            System.out.println("JwtRequestFilter 진입");
+            System.out.println(jwtHeader);
+            // header 가 정상적인 형식인지 확인
+            if(jwtHeader == null || !jwtHeader.startsWith(JwtProperties.TOKEN_PREFIX)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        // header 가 정상적인 형식인지 확인
-        if(jwtHeader == null || !jwtHeader.startsWith(JwtProperties.TOKEN_PREFIX)) {
+            // jwt 토큰을 검증해서 정상적인 사용자인지 확인
+            String token = jwtHeader.replace(JwtProperties.TOKEN_PREFIX, "");
+            if(token.equals("undefined")) {
+            	 filterChain.doFilter(request, response);
+                 return;
+            }
+            
+            Long id = null;
+            System.out.println(token);
+            try {
+                id = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
+                        .getClaim("id").asLong();
+            } catch (TokenExpiredException e) {
+                e.printStackTrace();
+                request.setAttribute(JwtProperties.HEADER_STRING, "토큰이 만료되었습니다.");
+            } catch (JWTVerificationException e) {
+                e.printStackTrace();
+                request.setAttribute(JwtProperties.HEADER_STRING, "유효하지 않은 토큰입니다.");
+            }
+
+            request.setAttribute("id", id);
+
             filterChain.doFilter(request, response);
-            return;
-        }
-
-        // jwt 토큰을 검증해서 정상적인 사용자인지 확인
-        String token = jwtHeader.replace(JwtProperties.TOKEN_PREFIX, "");
-
-        Long id = null;
-        String password = null;
-
-        try {
-            id = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
-                    .getClaim("id").asLong();
-            System.out.println(id);
-            password = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(token)
-            		.getClaim("password").asString();
-            System.out.println(password);
-   
-
-        } catch (TokenExpiredException e) {
-            e.printStackTrace();
-            request.setAttribute(JwtProperties.HEADER_STRING, "토큰이 만료되었습니다.");
-        } catch (JWTVerificationException e) {
-            e.printStackTrace();
-            request.setAttribute(JwtProperties.HEADER_STRING, "유효하지 않은 토큰입니다.");
-        }
-        request.setAttribute("id", id);
-        request.setAttribute("password", password);
-
-        filterChain.doFilter(request, response);
     }
 }
