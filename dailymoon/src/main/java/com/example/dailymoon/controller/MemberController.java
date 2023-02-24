@@ -34,8 +34,8 @@ public class MemberController {
 	// 로그인 기능
 	@GetMapping("/kakao")
 	public ResponseEntity<String> kakao(@RequestParam String code)  {
+		System.out.println("aaa");
 		String accesstoken = AcessToken.getKaKaoAccessToken(code);
-		System.out.println(accesstoken);
 		JsonElement element = KakaoAPI.UserInfo(accesstoken);
 		Member member = MemberService.createUser(element);
 		String jwttoken = jwtservice.createToken(member,accesstoken);

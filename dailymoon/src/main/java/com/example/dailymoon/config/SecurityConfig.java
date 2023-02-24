@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
+import com.example.dailymoon.config.jwt.CustomAuthenticationEntryPoint;
 import com.example.dailymoon.config.jwt.JwtRequestFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	   private final CorsFilter corsfilter;
+	   
 	   
 	   @Bean
 	   public BCryptPasswordEncoder encodePwd() {
@@ -40,7 +42,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
            .addFilter(corsfilter);
 
          http.authorizeRequests()
-           .anyRequest().permitAll();
+         	.antMatchers("http://localhost:3000/**")
+         	.authenticated()
+           .anyRequest()
+           .permitAll()
+           .and()
+           .exceptionHandling()
+           .authenticationEntryPoint(new CustomAuthenticationEntryPoint());;
 
    //(2)
    http.addFilterBefore(new JwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
