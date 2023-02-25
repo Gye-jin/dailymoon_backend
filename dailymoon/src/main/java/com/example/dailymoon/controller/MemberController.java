@@ -46,7 +46,8 @@ public class MemberController {
 		
 		// JWT 가 담긴 헤더와 200 ok 스테이터스 값, "success" 라는 바디값을 ResponseEntity 에 담아 프론트 측에 전달한다
 		System.out.println("##### " + ResponseEntity.ok().headers(headers).body("success"));
-		return ResponseEntity.ok().headers(headers).body("success");
+
+		return ResponseEntity.ok().headers(headers).body("성공");
 	}
 		
     // 로그 아웃 기능
