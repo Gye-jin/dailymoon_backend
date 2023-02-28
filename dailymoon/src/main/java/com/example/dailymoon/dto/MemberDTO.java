@@ -20,6 +20,7 @@ public class MemberDTO {
 	private String gender;
 	private String birth;
 	
+	
 	public static Member userDTOToEntity(MemberDTO memberDTO) {
 		Member member = Member.builder()
 								.userId(memberDTO.getUserId())

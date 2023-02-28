@@ -1,6 +1,8 @@
 package com.example.dailymoon.dto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.example.dailymoon.emotion.Feeling;
 import com.example.dailymoon.entity.Diary;
@@ -23,6 +25,8 @@ public class DiaryDTO {
 	private Feeling feeling;
 	private LocalDate date;
 	private String detail;
+	
+	private List<FileDTO> files = new ArrayList<>();
 	
 	// [DTO to Entity]
 	public static Diary diaryDTOToEntity(DiaryDTO diaryDTO) {

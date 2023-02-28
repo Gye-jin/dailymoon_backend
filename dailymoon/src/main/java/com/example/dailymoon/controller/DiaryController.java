@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,42 +42,25 @@ public class DiaryController {
 	// [Create]==============================================================================================================================
 	// jwt토큰을 받아야함 - 임시로 userId로 진행
 	@PostMapping("/diarys/create/{strDate}")
-	@Transactional
 	public boolean createDiarys(HttpServletRequest request, @PathVariable String strDate,
 			@ModelAttribute DiaryDTO diaryDTO, @RequestParam(value = "fileList") List<MultipartFile> fileList)
 			throws AmazonServiceException, SdkClientException, IOException {
 
 		// strDate 날짜 타입으로 변경
 		LocalDate date = LocalDate.parse(strDate, DateTimeFormatter.ISO_DATE);
-		System.out.println("test");
 		Long userId = (Long) request.getAttribute("id");
+		
+		// diary 저장
+		diaryService.createDiary(userId, diaryDTO, date);
 
-		/* 해당 날짜에 diary가 있는지 확인하기
-		 * check: true => 해당 날짜 diary 작성되어 있지 않음
-		 * check: false => 해당 날짜 diary 작성되어 있음
-		 */
-		boolean check = diaryService.checkDiary(userId, date);
+		// uploadFileS3는 fileList와 diaryDTO를 파라미터로 전달 받기 때문에 loadDiaryDTO를 통해 diaryDTO
+		// 받아오기
+		DiaryDTO loadDiaryDTO = diaryService.loadDiaryDTO(userId, date);
 
-		if (check & (fileList.get(0).getSize()!=0) ) {
-
-			// diary 저장
-			diaryService.createDiary(userId, diaryDTO, date);
-
-			// uploadFileS3는 fileList와 diaryDTO를 파라미터로 전달 받기 때문에 loadDiaryDTO를 통해 diaryDTO
-			// 받아오기
-			DiaryDTO loadDiaryDTO = diaryService.loadDiaryDTO(userId, date);
-
-			// 입력받은 file을 s3와 DB에 저장
-			fileService.uploadFileToS3AndLoadFiles(fileList, loadDiaryDTO);
-			return true;
-		} else if(check & (fileList.get(0).getSize()==0)) {
-			// diary 저장
-			diaryService.createDiary(userId, diaryDTO, date);
-
-			return true;
-		} else {
-			return false;
-		}
+		// 입력받은 file을 s3와 DB에 저장
+		fileService.uploadFileToS3AndLoadFiles(fileList, loadDiaryDTO);
+		return true;
+		 
 	}
 	// ======================================================================================================================================
 	
@@ -101,9 +85,7 @@ public class DiaryController {
 		detailDiary.setDate(diaryDTO.getDate().toString());
 		detailDiary.setFeeling(diaryDTO.getFeeling());
 		detailDiary.setDetail(diaryDTO.getDetail());
-		// file
-		List<FileDTO> fileList = fileService.loadFile(diaryDTO.getDiaryNo()); 
-		detailDiary.setFileList(fileList);
+
 		return detailDiary;
 	}
 	// ======================================================================================================================================
@@ -123,11 +105,11 @@ public class DiaryController {
 	// ======================================================================================================================================
 	
 	// [Delete]==============================================================================================================================
-	@DeleteMapping("diarys/delete/{userId}/{diaryNo}")
-	public void deleteDiary(HttpServletRequest request, @PathVariable Long diaryNo) {
+	@DeleteMapping("diarys/delete/")
+	public void deleteDiary(HttpServletRequest request, @RequestBody DiaryDTO diaryDTO) {
 		Long userId = (Long) request.getAttribute("id");
-		fileService.deleteFile(diaryNo);
-		diaryService.deleteDiary(diaryNo);
+
+		diaryService.deleteDiary(diaryDTO);
 	}
 	// ======================================================================================================================================
 }
