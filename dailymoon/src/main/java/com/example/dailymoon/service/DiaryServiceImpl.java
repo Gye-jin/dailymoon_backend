@@ -105,20 +105,16 @@ public class DiaryServiceImpl implements DiaryService {
 	// [Delete]===============================================================================================================================
 	@Override
 	@Transactional
-	public void deleteDiary(Long userId, DiaryDTO diaryDTO) {
-		Diary diary = diaryRepo.findById(diaryDTO.getDiaryNo()).orElseThrow(()-> new ApiControllerException(ErrorCode.POSTS_NOT_FOUND));
-		if(!diary.getMember().getUserId().equals(userId)) {
+	public void deleteDiary(Long userId, DiaryDTO diaryDTO) throws AmazonServiceException, SdkClientException{
+		Diary diary = diaryRepo.findById(diaryDTO.getDiaryNo())
+				.orElseThrow(() -> new ApiControllerException(ErrorCode.POSTS_NOT_FOUND));
+		if (!diary.getMember().getUserId().equals(userId)) {
 			throw new ApiControllerException(ErrorCode.FORBIDDEN);
 		}
-		try {
-			for(FileDTO file:diaryDTO.getFiles()) {
-				amazonS3Client.deleteObject(new DeleteObjectRequest(S3Bucket, file.getFileName()));
-				System.out.println(file.getFileName());
-			}
-		} catch(AmazonServiceException e) {
-			e.printStackTrace();
-		} catch(SdkClientException e) {
-			e.printStackTrace();
+
+		for (FileDTO file : diaryDTO.getFiles()) {
+			amazonS3Client.deleteObject(new DeleteObjectRequest(S3Bucket, file.getFileName()));
+
 		}
 		diaryRepo.deleteById(diaryDTO.getDiaryNo());
 	}
