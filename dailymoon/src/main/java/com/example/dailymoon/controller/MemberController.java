@@ -34,14 +34,12 @@ public class MemberController {
 	// 로그인 기능
 	@GetMapping("/kakao")
 	public ResponseEntity<String> kakao(@RequestParam String code)  {
-		System.out.println("aaa");
 		String accesstoken = AcessToken.getKaKaoAccessToken(code);
 		JsonElement element = KakaoAPI.UserInfo(accesstoken);
 		Member member = MemberService.createUser(element);
 		String jwttoken = jwtservice.createToken(member,accesstoken);
 		
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("key", "login");
 		headers.add(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwttoken);
 		
 		// JWT 가 담긴 헤더와 200 ok 스테이터스 값, "success" 라는 바디값을 ResponseEntity 에 담아 프론트 측에 전달한다
@@ -55,8 +53,8 @@ public class MemberController {
     public ResponseEntity<String> getLogout(HttpServletRequest request) {
     	
     	
-    	ResponseEntity<String> response = MemberService.logout(request);
-    	System.out.println(response+"logout완료");
+    	MemberService.logout(request);
+
     	
 		return ResponseEntity.ok().body("success");
     }

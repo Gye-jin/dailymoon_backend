@@ -1,9 +1,15 @@
 package com.example.dailymoon.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import com.example.dailymoon.dto.MemberDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +31,9 @@ public class Member {
 	private String gender;
 	private String birth;
 	
-	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+	@JsonIgnore
+	private List<Diary> boards = new ArrayList<Diary>();
 	
 	public static MemberDTO memberEntityToDTO(Member member) {
 		MemberDTO memberDTO = MemberDTO.builder()

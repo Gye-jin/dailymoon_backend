@@ -19,6 +19,8 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.dailymoon.common.ErrorCode;
+import com.example.dailymoon.common.exception.ApiControllerException;
 import com.example.dailymoon.dto.DiaryDTO;
 import com.example.dailymoon.dto.FileDTO;
 import com.example.dailymoon.entity.Diary;
@@ -82,27 +84,13 @@ public class FileServiceImpl implements FileService {
 		}
 	}
 	
-	// Read
-	@Override
-	public List<FileDTO> loadFile(Long diaryNo) {
-		List<File> fileEntityList = fileRepo.findByDiaryNo(diaryNo);
-		
-		List<FileDTO> fileDTOList = new ArrayList<FileDTO>();
-		
-		for(File file:fileEntityList) {
-			FileDTO fileDTO = File.fileEntityToDTO(file);
-			fileDTOList.add(fileDTO);
-		}
-		return fileDTOList;
-	}
-	
 	// Update
 	@Override
 	@Transactional
 	public void updateFile(Long diaryNo, List<MultipartFile> fileList) throws IOException {
-		Diary diary = diaryRepo.findById(diaryNo).orElseThrow(NoSuchElementException::new);
+		Diary diary = diaryRepo.findById(diaryNo).orElseThrow(() -> new ApiControllerException(ErrorCode.POSTS_NOT_FOUND));
 		try {
-			List<File> fileEntityList = fileRepo.findByDiaryNo(diaryNo);
+			List<File> fileEntityList = fileRepo.findByDiary(diary);
 			for(File file:fileEntityList) {
 				amazonS3Client.deleteObject(new DeleteObjectRequest(S3Bucket, file.getFileName()));
 				fileRepo.deleteById(file.getFileNo());
@@ -131,20 +119,4 @@ public class FileServiceImpl implements FileService {
 		}
 	}
 	
-	// Delete
-	@Override
-	@Transactional
-	public void deleteFile(Long diaryNo) {
-		List<File> fileList = fileRepo.findByDiaryNo(diaryNo);
-		try {
-			for(File file:fileList) {
-				amazonS3Client.deleteObject(new DeleteObjectRequest(S3Bucket, file.getFileName()));
-				fileRepo.deleteById(file.getFileNo());
-			}
-		} catch(AmazonServiceException e) {
-			e.printStackTrace();
-		} catch(SdkClientException e) {
-			e.printStackTrace();
-		}
-	}
 }
