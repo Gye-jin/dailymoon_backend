@@ -41,11 +41,12 @@ public class File {
 	@JoinColumn(name = "diary_no")
 	private Diary diary;
 
-	// [Entity to DTO]
-	public static FileDTO fileEntityToDTO(File file) {
-		FileDTO fileDTO = FileDTO.builder().fileNo(file.fileNo).fileName(file.fileName)
-				.filePath(file.filePath).originalFileName(file.originalFileName).build();
-		return fileDTO;
+
+	
+	public static File fileDTOToEntity(FileDTO fileDTO) {
+		File file = File.builder().fileNo(fileDTO.getFileNo()).fileName(fileDTO.getFileName())
+				.filePath(fileDTO.getFilePath()).originalFileName(fileDTO.getOriginalFileName()).build();
+		return file;
 	}
 	
 	// Insert

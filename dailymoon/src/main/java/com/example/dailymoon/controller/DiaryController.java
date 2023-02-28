@@ -23,10 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
+import com.example.dailymoon.dto.CalanderDTO;
 import com.example.dailymoon.dto.DiaryDTO;
-import com.example.dailymoon.dto.FileDTO;
-import com.example.dailymoon.form.DetailDiary;
-import com.example.dailymoon.form.PreviewDiary;
+import com.example.dailymoon.entity.Diary;
 import com.example.dailymoon.service.DiaryServiceImpl;
 import com.example.dailymoon.service.FileServiceImpl;
 
@@ -43,22 +42,18 @@ public class DiaryController {
 	// jwt토큰을 받아야함 - 임시로 userId로 진행
 	@PostMapping("/diarys/create/{strDate}")
 	public boolean createDiarys(HttpServletRequest request, @PathVariable String strDate,
-			@ModelAttribute DiaryDTO diaryDTO, @RequestParam(value = "fileList") List<MultipartFile> fileList)
+			@ModelAttribute CalanderDTO diaryDTO, @RequestParam(value = "fileList", required = false) List<MultipartFile> fileList)
 			throws AmazonServiceException, SdkClientException, IOException {
 
 		// strDate 날짜 타입으로 변경
 		LocalDate date = LocalDate.parse(strDate, DateTimeFormatter.ISO_DATE);
 		Long userId = (Long) request.getAttribute("id");
-		
-		// diary 저장
-		diaryService.createDiary(userId, diaryDTO, date);
-
-		// uploadFileS3는 fileList와 diaryDTO를 파라미터로 전달 받기 때문에 loadDiaryDTO를 통해 diaryDTO
-		// 받아오기
-		DiaryDTO loadDiaryDTO = diaryService.loadDiaryDTO(userId, date);
-
 		// 입력받은 file을 s3와 DB에 저장
-		fileService.uploadFileToS3AndLoadFiles(fileList, loadDiaryDTO);
+		Diary diary = diaryService.createDiary(userId, diaryDTO, date);
+		if(fileList != null) {
+			fileService.uploadFileToS3AndLoadFiles(fileList, diary);
+		}
+		System.out.println("success");
 		return true;
 		 
 	}
@@ -67,49 +62,42 @@ public class DiaryController {
 	// [Read]================================================================================================================================
 	// 해당 유저가 작성한 모든 데이터 출력
 	@GetMapping("diarys/read/all")
-	public List<PreviewDiary> loadMonthDiary(HttpServletRequest request) {
-		return diaryService.loadAllDairyDTO((Long)request.getAttribute("id"));
+	public List<CalanderDTO> loadMonthDiary(HttpServletRequest request) {
+		System.out.println("readall");
+		return diaryService.loadCalenderDTO((Long)request.getAttribute("id"));
 	}
 	
 	// 해당 날짜에 작성된 다이어리 가져오기
 	@GetMapping("diarys/read/{strDate}")
-	public DetailDiary loadDiary(HttpServletRequest request, @PathVariable String strDate) {
+	public DiaryDTO loadDiary(HttpServletRequest request, @PathVariable String strDate) {
 		// strDate 날짜 타입으로 변경
 		LocalDate date = LocalDate.parse(strDate, DateTimeFormatter.ISO_DATE);
 		Long userId = (Long) request.getAttribute("id");
 		
-		DetailDiary detailDiary = new DetailDiary();
-		DiaryDTO diaryDTO = diaryService.loadDiaryDTO(userId, date);
-		// diary
-		detailDiary.setDiaryNo(diaryDTO.getDiaryNo());
-		detailDiary.setDate(diaryDTO.getDate().toString());
-		detailDiary.setFeeling(diaryDTO.getFeeling());
-		detailDiary.setDetail(diaryDTO.getDetail());
-
-		return detailDiary;
+		return diaryService.loadDiaryDTO(userId, date);
 	}
 	// ======================================================================================================================================
 	
 	// [Update]==============================================================================================================================
-	@PutMapping("diarys/update/in-file")
+	@PutMapping("diarys/update")
+	@Transactional
 	public DiaryDTO updateDiary(HttpServletRequest request, @ModelAttribute DiaryDTO diaryDTO, @ModelAttribute List<MultipartFile> fileList) throws IOException {
 		Long userId = (Long) request.getAttribute("id");
-		if (fileList.get(0).getSize()==0) {
-			return diaryService.updateDiary(diaryDTO);
-		} else {
+		if (fileList != null) {
 			fileService.updateFile(diaryDTO.getDiaryNo(), fileList);
-			return diaryService.updateDiary(diaryDTO);
-		}
+		} 
+		return diaryService.updateDiary(userId,diaryDTO);
+		
 	}
 	
 	// ======================================================================================================================================
 	
 	// [Delete]==============================================================================================================================
-	@DeleteMapping("diarys/delete/")
+	@DeleteMapping("diarys/delete")
 	public void deleteDiary(HttpServletRequest request, @RequestBody DiaryDTO diaryDTO) {
 		Long userId = (Long) request.getAttribute("id");
-
-		diaryService.deleteDiary(diaryDTO);
+		System.out.println(diaryDTO.getDiaryNo());
+		diaryService.deleteDiary(userId, diaryDTO);
 	}
 	// ======================================================================================================================================
 }

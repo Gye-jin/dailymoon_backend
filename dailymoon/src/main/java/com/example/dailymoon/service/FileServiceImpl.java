@@ -1,9 +1,7 @@
 package com.example.dailymoon.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.transaction.Transactional;
 
@@ -21,7 +19,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.example.dailymoon.common.ErrorCode;
 import com.example.dailymoon.common.exception.ApiControllerException;
-import com.example.dailymoon.dto.DiaryDTO;
 import com.example.dailymoon.dto.FileDTO;
 import com.example.dailymoon.entity.Diary;
 import com.example.dailymoon.entity.File;
@@ -47,8 +44,7 @@ public class FileServiceImpl implements FileService {
 	// Create
 	@Override
 	@Transactional
-	public void uploadFileToS3AndLoadFiles(List<MultipartFile> fileList, DiaryDTO diaryDTO) throws AmazonServiceException, SdkClientException, IOException {
-		Diary diary = DiaryDTO.diaryDTOToEntity(diaryDTO);
+	public void uploadFileToS3AndLoadFiles(List<MultipartFile> fileList, Diary diary) throws AmazonServiceException, SdkClientException, IOException {
 		
 		for(MultipartFile file : fileList) {
 			if(file.getSize()!=0) {
@@ -75,7 +71,7 @@ public class FileServiceImpl implements FileService {
 			// fileDTO 생성
 			FileDTO fileDTO = FileDTO.builder().fileName(fileName).filePath(filePath).originalFileName(originalFileName).build();
 			// Entity변경
-			File fileEntity = FileDTO.fileDTOToEntity(fileDTO);
+			File fileEntity = File.fileDTOToEntity(fileDTO);
 			// fileEintity에 diary삽입
 			fileEntity.insertDiaryInFile(diary);
 			// fileRepo save
@@ -87,36 +83,32 @@ public class FileServiceImpl implements FileService {
 	// Update
 	@Override
 	@Transactional
-	public void updateFile(Long diaryNo, List<MultipartFile> fileList) throws IOException {
-		Diary diary = diaryRepo.findById(diaryNo).orElseThrow(() -> new ApiControllerException(ErrorCode.POSTS_NOT_FOUND));
-		try {
-			List<File> fileEntityList = fileRepo.findByDiary(diary);
-			for(File file:fileEntityList) {
-				amazonS3Client.deleteObject(new DeleteObjectRequest(S3Bucket, file.getFileName()));
-				fileRepo.deleteById(file.getFileNo());
-			}
-			for(MultipartFile file : fileList) {
-				String fileName = diary.getDiaryNo()+"_"+file.getOriginalFilename();
-				String originalFileName = file.getOriginalFilename();
-				long size = file.getSize();
-				ObjectMetadata objectMetaData = new ObjectMetadata();
-				objectMetaData.setContentType(file.getContentType());
-				objectMetaData.setContentLength(size);
-				amazonS3Client.putObject(
-						new PutObjectRequest(S3Bucket, fileName, file.getInputStream(), objectMetaData)
-						.withCannedAcl(CannedAccessControlList.PublicRead)
-						);
-				String filePath = amazonS3Client.getUrl(S3Bucket, fileName).toString();
-				FileDTO fileDTO = FileDTO.builder().fileName(fileName).filePath(filePath).originalFileName(originalFileName).build();
-				File fileEntity = FileDTO.fileDTOToEntity(fileDTO);
-				fileEntity.insertDiaryInFile(diary);
-				fileRepo.save(fileEntity);
-			}
-		} catch(AmazonServiceException e) {
-			e.printStackTrace();
-		} catch(SdkClientException e) {
-			e.printStackTrace();
+	public void updateFile(Long diaryNo, List<MultipartFile> fileList) throws IOException , AmazonServiceException, SdkClientException{
+		Diary diary = diaryRepo.findById(diaryNo)
+				.orElseThrow(() -> new ApiControllerException(ErrorCode.POSTS_NOT_FOUND));
+
+		List<File> fileEntityList = fileRepo.findByDiary(diary);
+		for (File file : fileEntityList) {
+			amazonS3Client.deleteObject(new DeleteObjectRequest(S3Bucket, file.getFileName()));
+			fileRepo.deleteById(file.getFileNo());
 		}
+		for (MultipartFile file : fileList) {
+			String fileName = diary.getDiaryNo() + "_" + file.getOriginalFilename();
+			String originalFileName = file.getOriginalFilename();
+			long size = file.getSize();
+			ObjectMetadata objectMetaData = new ObjectMetadata();
+			objectMetaData.setContentType(file.getContentType());
+			objectMetaData.setContentLength(size);
+			amazonS3Client.putObject(new PutObjectRequest(S3Bucket, fileName, file.getInputStream(), objectMetaData)
+					.withCannedAcl(CannedAccessControlList.PublicRead));
+			String filePath = amazonS3Client.getUrl(S3Bucket, fileName).toString();
+			FileDTO fileDTO = FileDTO.builder().fileName(fileName).filePath(filePath).originalFileName(originalFileName)
+					.build();
+			File fileEntity = File.fileDTOToEntity(fileDTO);
+			fileEntity.insertDiaryInFile(diary);
+			fileRepo.save(fileEntity);
+		}
+
 	}
 	
 }
