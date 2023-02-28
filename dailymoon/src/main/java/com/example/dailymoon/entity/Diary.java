@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.example.dailymoon.dto.CalanderDTO;
 import com.example.dailymoon.dto.DiaryDTO;
 import com.example.dailymoon.emotion.Feeling;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,7 +33,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Getter
 @Builder
-@ToString
+@ToString(exclude = "files")
 public class Diary {
 	// [Column]
 	@Id
@@ -53,15 +55,17 @@ public class Diary {
 	private Member member;
 	
 	@JsonIgnore
-	@OneToMany(mappedBy = "diary")
+	@OneToMany(mappedBy = "diary",cascade = CascadeType.REMOVE)
 	private List<File> files = new ArrayList<File>();
 	
-	// [Entity To DTO]
-	public static DiaryDTO diaryEntityToDTO(Diary diary) {
-		DiaryDTO diaryDTO = DiaryDTO.builder().diaryNo(diary.diaryNo)
-				.feeling(diary.feeling).date(diary.date)
-				.detail(diary.detail).build();
-		return diaryDTO;
+
+	
+	// [DTO to Entity]
+	public static Diary diaryDTOToEntity(CalanderDTO diaryDTO) {
+		Diary diary = Diary.builder().diaryNo(diaryDTO.getDiaryNo())
+				.feeling(diaryDTO.getFeeling()).date(diaryDTO.getDate())
+				.detail(diaryDTO.getDetail()).build();
+		return diary;
 	}
 	
 	// Insert

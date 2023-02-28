@@ -7,11 +7,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
-import com.example.dailymoon.dto.DiaryDTO;
+import com.example.dailymoon.entity.Diary;
 
 public interface FileService {
 	
-	public void uploadFileToS3AndLoadFiles(List<MultipartFile> fileList, DiaryDTO diaryDTO) throws AmazonServiceException, SdkClientException, IOException;
+	public void uploadFileToS3AndLoadFiles(List<MultipartFile> fileList, Diary diary) throws AmazonServiceException, SdkClientException, IOException;
+		
 
 //	public List<FileDTO> loadFile(Long diaryNo);
 	

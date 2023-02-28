@@ -100,7 +100,7 @@ public class MemberServiceImpl implements MemberService {
 	public MemberDTO getMember(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         Member member = memberRepo.findByUserId(userId);
-       MemberDTO memberDTO = Member.memberEntityToDTO(member);
+       MemberDTO memberDTO = MemberDTO.memberEntityToDTO(member);
         return memberDTO;
 	}
 }

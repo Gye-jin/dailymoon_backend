@@ -15,12 +15,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Builder
+@ToString(exclude = {"diarys"})
 public class Member {
 	@Id
 	private Long userId;
@@ -31,20 +33,19 @@ public class Member {
 	private String gender;
 	private String birth;
 	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+	@OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
 	@JsonIgnore
-	private List<Diary> boards = new ArrayList<Diary>();
+	private List<Diary> diarys = new ArrayList<Diary>();
 	
-	public static MemberDTO memberEntityToDTO(Member member) {
-		MemberDTO memberDTO = MemberDTO.builder()
-				.userId(member.getUserId())
-				.password(member.getPassword())
-				.nickname(member.getNickname())
-				.email(member.getEmail())
-				.gender(member.getGender())
-				.birth(member.getBirth())
-				.build();
-		
-		return memberDTO;
+	public static Member userDTOToEntity(MemberDTO memberDTO) {
+		Member member = Member.builder()
+								.userId(memberDTO.getUserId())
+								.password(memberDTO.getPassword())
+								.nickname(memberDTO.getNickname())
+								.email(memberDTO.getEmail())
+								.gender(memberDTO.getGender())
+								.birth(memberDTO.getBirth())
+								 .build();
+		return member;
 	}
 }

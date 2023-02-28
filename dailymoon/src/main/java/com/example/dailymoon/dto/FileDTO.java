@@ -19,9 +19,10 @@ public class FileDTO {
 	private String filePath;
 	private String originalFileName;
 	
-	public static File fileDTOToEntity(FileDTO fileDTO) {
-		File file = File.builder().fileNo(fileDTO.fileNo).fileName(fileDTO.fileName)
-				.filePath(fileDTO.filePath).originalFileName(fileDTO.originalFileName).build();
-		return file;
+	// [Entity to DTO]
+	public static FileDTO fileEntityToDTO(File file) {
+		FileDTO fileDTO = FileDTO.builder().fileNo(file.getFileNo()).fileName(file.getFileName())
+				.filePath(file.getFilePath()).originalFileName(file.getOriginalFileName()).build();
+		return fileDTO;
 	}
 }

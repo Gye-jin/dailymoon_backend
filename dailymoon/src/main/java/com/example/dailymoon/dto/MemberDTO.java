@@ -20,16 +20,18 @@ public class MemberDTO {
 	private String gender;
 	private String birth;
 	
-	
-	public static Member userDTOToEntity(MemberDTO memberDTO) {
-		Member member = Member.builder()
-								.userId(memberDTO.getUserId())
-								.password(memberDTO.getPassword())
-								.nickname(memberDTO.getNickname())
-								.email(memberDTO.getEmail())
-								.gender(memberDTO.getGender())
-								.birth(memberDTO.getBirth())
-								 .build();
-		return member;
+	public static MemberDTO memberEntityToDTO(Member member) {
+		MemberDTO memberDTO = MemberDTO.builder()
+				.userId(member.getUserId())
+				.password(member.getPassword())
+				.nickname(member.getNickname())
+				.email(member.getEmail())
+				.gender(member.getGender())
+				.birth(member.getBirth())
+				.build();
+		
+		return memberDTO;
 	}
+	
+
 }
