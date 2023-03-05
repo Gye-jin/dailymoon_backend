@@ -2,6 +2,7 @@ package com.example.dailymoon.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -49,7 +50,7 @@ public class FileServiceImpl implements FileService {
 		for(MultipartFile file : fileList) {
 			if(file.getSize()!=0) {
 			// 파일 이름
-			String fileName = diary.getDiaryNo()+"_"+file.getOriginalFilename();
+			String fileName = UUID.randomUUID()+"_"+file.getOriginalFilename();
 			// 파일 오리지널 이름
 			String originalFileName = file.getOriginalFilename();
 			

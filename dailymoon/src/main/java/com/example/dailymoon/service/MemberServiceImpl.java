@@ -62,8 +62,7 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public ResponseEntity<String> logout(HttpServletRequest request) {
 		// request 안에 들어있는 jwt 토큰의 payload 부분에서 kakaoId 정보를 불러옴
-		String kakaoId = request.getAttribute("userCode").toString();
-		System.out.println("### kakaoId : " + kakaoId);
+		Long kakaoId = (Long) request.getAttribute("id");
 		
 		// 통신에 필요한 RestTemplate 객체를 만든다
 		RestTemplate rt = new RestTemplate();
@@ -75,7 +74,7 @@ public class MemberServiceImpl implements MemberService {
 		// http 바디
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("target_id_type", "user_id");
-		params.add("target_id", kakaoId);
+		params.add("target_id", kakaoId.toString());
 		
 		// HttpHeader 정보를 http 엔터티에 담아준다
 		HttpEntity<MultiValueMap<String, String>> logoutRequest =
